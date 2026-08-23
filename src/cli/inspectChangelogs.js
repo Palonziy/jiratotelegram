@@ -1,5 +1,5 @@
-const db = require('../src/db/database');
-const JiraClient = require('../src/jira/jiraClient');
+const db = require('../db/database');
+const JiraClient = require('../jira/jiraClient');
 
 async function inspectChangelogs() {
   await db.init();

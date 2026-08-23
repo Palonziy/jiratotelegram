@@ -1,5 +1,5 @@
 const config = require('../config');
-const JiraClient = require('../src/jira/jiraClient');
+const JiraClient = require('../jira/jiraClient');
 
 async function getFields() {
   const client = new JiraClient();

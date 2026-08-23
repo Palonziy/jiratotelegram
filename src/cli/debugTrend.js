@@ -1,5 +1,5 @@
-const db = require('../src/db/database');
-const analyticsEngine = require('../src/analytics/analyticsEngine');
+const db = require('../db/database');
+const analyticsEngine = require('../analytics/analyticsEngine');
 
 async function debugTrend() {
   await db.init();
