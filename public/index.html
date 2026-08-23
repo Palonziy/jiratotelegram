@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rentmi QA Analytics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header Navbar -->
+    <header class="navbar">
+      <div class="brand">
+        <div class="logo-badge">🐛</div>
+        <div class="brand-text">
+          <h1 id="appTitle">JIRA <span>QA Analytics</span></h1>
+          <p>Jira Project: <strong id="projectBadge">--</strong></p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="live-indicator">
+          <span class="pulse-dot"></span>
+          <span id="lastUpdated">Live Jira Sync</span>
+        </div>
+        <button id="themeToggleBtn" class="btn btn-secondary">
+          <span class="btn-icon" id="themeIcon">☀️</span> <span id="themeText">Light Mode</span>
+        </button>
+        <button id="syncBtn" class="btn btn-primary">
+          <span class="btn-icon">🔄</span> Sync Jira Data
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Bar Navigation -->
+    <nav class="tab-bar">
+      <button class="tab-btn active" id="tabDailyBtn">📅 Daily Report</button>
+      <button class="tab-btn" id="tabWeeklyBtn">📊 Weekly Analytics</button>
+    </nav>
+
+    <!-- Main Content Grid -->
+    <main class="dashboard-body" id="dailyView">
+      <!-- KPI Cards Row -->
+      <section class="kpi-grid">
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-bug">🐞</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Active Backlog</span>
+            <h2 class="kpi-value" id="kpiActiveBacklog">--</h2>
+            <span class="kpi-subtext" id="kpiBacklogChange">--</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-testing">🧪</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Testing Queue</span>
+            <h2 class="kpi-value" id="kpiTestingQueue">--</h2>
+            <span class="kpi-subtext" id="kpiTestingBottleneck">--</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-created">🆕</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Created Today</span>
+            <h2 class="kpi-value" id="kpiCreatedToday">--</h2>
+            <span class="kpi-subtext">Reported by QA</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-done">✅</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Done Today</span>
+            <h2 class="kpi-value" id="kpiDoneToday">--</h2>
+            <span class="kpi-subtext">Resolved & Verified</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-reopened">🔄</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Returned / Reopened</span>
+            <h2 class="kpi-value" id="kpiReopenedToday">--</h2>
+            <span class="kpi-subtext">Today's transitions</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts Row 1: Backlog Trend & Status Distribution -->
+      <section class="charts-row">
+        <div class="chart-card glass">
+          <div class="chart-header">
+            <h3>📈 7-Day Backlog Trend</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass">
+          <div class="chart-header">
+            <h3>📌 Status Distribution</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="statusChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts Row 2: Priority, Platform & Aging -->
+      <section class="charts-row three-cols">
+        <div class="chart-card glass">
+          <div class="chart-header">
+            <h3>🔥 Priority Breakdown</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="priorityChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass">
+          <div class="chart-header">
+            <h3>💻 Platform Breakdown</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="platformChart"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card glass">
+          <div class="chart-header">
+            <h3>⏳ Bug Aging Distribution</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="agingChart"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tables Row: Assignee Workload & Oldest Open Bugs -->
+      <section class="tables-row">
+        <div class="table-card glass">
+          <div class="card-header">
+            <h3>👥 Assignee Workload</h3>
+          </div>
+          <div class="table-container">
+            <table id="assigneeTable">
+              <thead>
+                <tr>
+                  <th>Assignee</th>
+                  <th>Open Bugs</th>
+                  <th>Testing</th>
+                  <th>Done Today</th>
+                  <th>Created Today</th>
+                </tr>
+              </thead>
+              <tbody id="assigneeTableBody">
+                <tr><td colspan="5" class="loading">Loading workload data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="table-card glass">
+          <div class="card-header">
+            <h3>⚠️ Oldest Active Bugs</h3>
+          </div>
+          <div class="table-container">
+            <table id="oldestBugsTable">
+              <thead>
+                <tr>
+                  <th>Key</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Assignee</th>
+                  <th>Age (Days)</th>
+                </tr>
+              </thead>
+              <tbody id="oldestBugsBody">
+                <tr><td colspan="5" class="loading">Loading aging issues...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Weekly Analytics View -->
+    <main class="dashboard-body" id="weeklyView" style="display: none;">
+      <section class="kpi-grid">
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-created">🆕</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Created This Week</span>
+            <h2 class="kpi-value" id="wkCreated">--</h2>
+            <span class="kpi-subtext" id="wkPeriod">Mon — Today</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-done">✅</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Done This Week</span>
+            <h2 class="kpi-value" id="wkDone">--</h2>
+            <span class="kpi-subtext">Resolved & Verified</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-testing">🎯</div>
+          <div class="kpi-content">
+            <span class="kpi-label">QA Pass Rate</span>
+            <h2 class="kpi-value" id="wkPassRate">--%</h2>
+            <span class="kpi-subtext">First-time quality score</span>
+          </div>
+        </div>
+
+        <div class="kpi-card glass">
+          <div class="kpi-icon icon-reopened">🏆</div>
+          <div class="kpi-content">
+            <span class="kpi-label">Top QA Closer</span>
+            <h2 class="kpi-value" id="wkTopCloser">--</h2>
+            <span class="kpi-subtext" id="wkTopCloserCount">-- closed</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="tables-grid">
+        <div class="table-card glass" style="grid-column: 1 / -1;">
+          <div class="card-header">
+            <h3>👥 Weekly Assignee Throughput</h3>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>Assignee</th>
+                  <th>Done This Week</th>
+                  <th>Testing</th>
+                  <th>Open Bugs</th>
+                  <th>Returned (Failed QA)</th>
+                </tr>
+              </thead>
+              <tbody id="wkAssigneeTableBody">
+                <tr><td colspan="5" class="loading">Loading weekly workload data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

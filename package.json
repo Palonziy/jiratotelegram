@@ -1,0 +1,30 @@
+{
+  "name": "jira-qa-analytics-bot",
+  "version": "1.0.0",
+  "description": "Automated Jira QA Analytics Engine & Telegram Bot for Agile Engineering Teams",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "sync": "node src/cli/syncCli.js",
+    "test:reporters": "node src/cli/testAllReporters.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "jira",
+    "qa",
+    "analytics",
+    "telegram-bot",
+    "metrics",
+    "dashboard",
+    "agile"
+  ],
+  "author": "Open Source QA Community",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "sqlite3": "^5.1.7"
+  }
+}
