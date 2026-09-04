@@ -11,11 +11,14 @@ class ReportFormatter {
     return `${day} ${month} ${year}`;
   }
 
-  formatTodayReport(analytics) {
+  formatTodayReport(analytics, options = {}) {
+    const hideTodo = typeof options === 'object' ? !!options.hideTodo : false;
     const dateFormatted = this.formatDateHeader(analytics.date);
     const act = analytics.dailyActivity;
     const stat = analytics.currentSnapshot.statusDistribution;
-    const totalStatus = stat.bug + stat.testing + stat.inProgress + stat.todo + stat.reportBugun + stat.done;
+    const totalStatus = hideTodo
+      ? (stat.bug + stat.testing + stat.inProgress + stat.reportBugun + stat.done)
+      : (stat.bug + stat.testing + stat.inProgress + stat.todo + stat.reportBugun + stat.done);
     const sev = analytics.currentSnapshot.severityDistribution || {};
     const prio = analytics.currentSnapshot.priorityDistribution;
     const plat = analytics.currentSnapshot.platformDistribution;
@@ -51,6 +54,15 @@ class ReportFormatter {
       oldestText = oldestText.trimEnd();
     }
 
+    let statusText = `🐛 Bug: <b>${stat.bug}</b>\n` +
+      `🧪 Testing: <b>${stat.testing}</b>\n` +
+      `🔄 In Progress: <b>${stat.inProgress}</b>\n`;
+    if (!hideTodo) {
+      statusText += `📋 To Do: <b>${stat.todo}</b>\n`;
+    }
+    statusText += `🚫 Report(BUGUN): <b>${stat.reportBugun}</b>\n` +
+      `✅ Done: <b>${stat.done}</b>\n\n`;
+
     let report = `📊 <b>${config.appName.toUpperCase()} DAILY REPORT</b>\n${dateFormatted}\n\n` +
       `━━━━━━━━━━━━━━━━\n` +
       `🐞 <b>TODAY'S ACTIVITY</b>\n` +
@@ -63,12 +75,7 @@ class ReportFormatter {
       `━━━━━━━━━━━━━━━━\n` +
       `📌 <b>CURRENT STATUS</b>\n` +
       `━━━━━━━━━━━━━━━━\n\n` +
-      `🐛 Bug: <b>${stat.bug}</b>\n` +
-      `🧪 Testing: <b>${stat.testing}</b>\n` +
-      `🔄 In Progress: <b>${stat.inProgress}</b>\n` +
-      `📋 To Do: <b>${stat.todo}</b>\n` +
-      `🚫 Report(BUGUN): <b>${stat.reportBugun}</b>\n` +
-      `✅ Done: <b>${stat.done}</b>\n\n` +
+      statusText +
       `📊 Total: <b>${totalStatus}</b>\n\n` +
       `━━━━━━━━━━━━━━━━\n` +
       `💥 <b>SEVERITY</b>\n` +
@@ -251,7 +258,8 @@ class ReportFormatter {
 
   formatHelpReport() {
     return `🤖 <b>RENTMI QA ANALYTICS BOT COMMANDS</b>\n\n` +
-      `/today — Today's QA daily report\n` +
+      `/today — Today's QA daily report (Reporter Filtered)\n` +
+      `/todayall — Today's QA daily report for ALL team members\n` +
       `/yesterday — Yesterday's QA report\n` +
       `/week — Cumulative Weekly QA report (Monday -> Today)\n` +
       `/status — Current status breakdown\n` +

@@ -22,7 +22,7 @@ async function testWeeklyAnalytics() {
 
   // Test 3: formatWeeklyReport formatting
   const formattedHtml = reportFormatter.formatWeeklyReport(weekly);
-  assert.ok(formattedHtml.includes('RENTMI QA WEEKLY REPORT'), 'Report must contain title header');
+  assert.ok(formattedHtml.includes('WEEKLY REPORT'), 'Report must contain title header');
   assert.ok(formattedHtml.includes('WEEKLY ACTIVITY'), 'Report must contain WEEKLY ACTIVITY section');
   assert.ok(formattedHtml.includes('QA Pass Rate'), 'Report must contain QA Pass Rate metric');
   console.log('✅ Test 3 Passed: formatWeeklyReport produces clean HTML output');

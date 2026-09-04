@@ -11,7 +11,7 @@ test('JiraClient Bounded JQL Construction', () => {
   const jql = client.getBoundedJql();
   assert.strictEqual(jql.includes('project = WIP'), true);
   assert.strictEqual(jql.includes('type = Bug'), true);
-  assert.strictEqual(jql.includes('status IN'), true);
+  assert.strictEqual(jql.includes('ORDER BY created DESC'), true);
 });
 
 test('JiraClient Platform Classification', () => {

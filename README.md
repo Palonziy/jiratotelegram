@@ -111,6 +111,7 @@ Open your browser at **[http://localhost:3000](http://localhost:3000)** to view 
 | Command | Description | Scope |
 | :--- | :--- | :--- |
 | `/today` | Today's QA daily report | Configured Reporter |
+| `/todayall` | Today's QA daily report for ALL team members | Entire Project / Team |
 | `/yesterday` | Yesterday's QA report summary | Configured Reporter |
 | `/week` or `/weekly` | Cumulative Weekly report (Mon -> Today) | Entire Project / Team |
 | `/status` | Current status breakdown | Configured Reporter |

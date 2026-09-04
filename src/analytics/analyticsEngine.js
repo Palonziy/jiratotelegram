@@ -14,7 +14,7 @@ class AnalyticsEngine {
   /**
    * Calculates metrics for a specific date (default: today)
    */
-  async getAnalyticsForDate(targetDate = new Date(), filterByReporter = false) {
+  async getAnalyticsForDate(targetDate = new Date(), filterByReporter = false, excludeTodo = false) {
     await db.init();
     const config = require('../config');
 
@@ -40,6 +40,13 @@ class AnalyticsEngine {
           return i.rawData.fields.reporter.accountId === config.jira.reporterId;
         }
         return true;
+      });
+    }
+
+    if (excludeTodo) {
+      issues = issues.filter(i => {
+        const s = (i.status || '').toLowerCase().trim();
+        return !s.includes('to do') && !s.includes('todo');
       });
     }
 

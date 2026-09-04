@@ -135,7 +135,15 @@ class TelegramBotService {
 
         case '/today': {
           const analytics = await analyticsEngine.getAnalyticsForDate(new Date(), true);
-          const report = reportFormatter.formatTodayReport(analytics, true);
+          const report = reportFormatter.formatTodayReport(analytics);
+          await this.sendMessage(chatId, report);
+          break;
+        }
+
+        case '/todayall':
+        case '/alltoday': {
+          const analytics = await analyticsEngine.getAnalyticsForDate(new Date(), false, true);
+          const report = reportFormatter.formatTodayReport(analytics, { hideTodo: true });
           await this.sendMessage(chatId, report);
           break;
         }
