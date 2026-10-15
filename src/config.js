@@ -37,7 +37,11 @@ module.exports = {
   },
   telegram: {
     botToken: process.env.TELEGRAM_BOT_TOKEN || '',
-    chatId: process.env.TELEGRAM_CHAT_ID || ''
+    chatId: process.env.TELEGRAM_CHAT_ID || '',
+    allowedUsers: (process.env.TELEGRAM_ALLOWED_USERS || 'palonziy')
+      .split(',')
+      .map(u => u.trim().toLowerCase().replace(/^@/, ''))
+      .filter(Boolean)
   },
   schedule: {
     hour: parseInt(process.env.DAILY_REPORT_HOUR || '19', 10),

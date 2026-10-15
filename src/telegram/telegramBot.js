@@ -113,14 +113,67 @@ class TelegramBotService {
     this.isPolling = false;
   }
 
-  async handleUpdate(update) {
-    if (!update.message || !update.message.text) return;
+  /**
+   * Validates whether a Telegram message is from an authorized team member (@palonziy)
+   */
+  isAuthorized(message) {
+    if (!message) return false;
+    const from = message.from;
+    if (!from) return false;
 
-    const message = update.message;
+    const username = (from.username || '').toLowerCase().replace(/^@/, '').trim();
+    const userId = String(from.id || '').trim();
+    const chatId = String(message.chat ? message.chat.id : '').trim();
+
+    const allowed = (config.telegram.allowedUsers || ['palonziy'])
+      .map(u => String(u).toLowerCase().replace(/^@/, '').trim())
+      .filter(Boolean);
+
+    // 1. Match Telegram username (e.g. palonziy)
+    if (username && allowed.includes(username)) {
+      return true;
+    }
+
+    // 2. Match Telegram User ID
+    if (userId && allowed.includes(userId)) {
+      return true;
+    }
+
+    // 3. Match Telegram Chat ID
+    if (chatId && allowed.includes(chatId)) {
+      return true;
+    }
+
+    // 4. Match configured broadcast TELEGRAM_CHAT_ID if explicitly set
+    if (config.telegram.chatId && (userId === String(config.telegram.chatId) || chatId === String(config.telegram.chatId))) {
+      return true;
+    }
+
+    return false;
+  }
+
+  async handleUpdate(update) {
+    const message = update.message || update.edited_message;
+    if (!message || !message.text) return;
+
     const chatId = message.chat.id;
     const text = message.text.trim();
+    const from = message.from || {};
+    const sender = from.username ? `@${from.username}` : `ID:${from.id || chatId}`;
 
-    console.log(`[TELEGRAM] Received command '${text}' from chat ${chatId}`);
+    console.log(`[TELEGRAM] Received command '${text}' from ${sender} (chat ${chatId})`);
+
+    // Strict Access Control: Only @palonziy / authorized team members allowed
+    if (!this.isAuthorized(message)) {
+      console.warn(`[TELEGRAM] ⛔ Unauthorized access blocked from ${sender} (chat ${chatId}): '${text}'`);
+      await this.sendMessage(chatId,
+        `⛔ <b>Kirish taqiqlangan!</b>\n\n` +
+        `Kechirasiz, siz Rentmi jamoasidan emassiz.\n` +
+        `Ushbu bot faqat Rentmi QA va muhandislik jamoasining vakolatli a'zolari (@palonziy) uchun mo'ljallangan.\n\n` +
+        `<i>Agar siz jamoa a'zosi bo'lsangiz, administrator (@palonziy) bilan bog'laning.</i>`
+      );
+      return;
+    }
 
     const command = text.split(' ')[0].toLowerCase().replace(/@.+$/, '');
 
